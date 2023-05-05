@@ -1,3 +1,5 @@
+import ws from 'ws';
+
 import { Base64, isNode } from './utils';
 
 export const WebSocketClient = (() => {
@@ -8,7 +10,7 @@ export const WebSocketClient = (() => {
       }
     };
   } else {
-    return require('ws') as typeof WebSocket;
+    return ws;
   }
 })();
 
