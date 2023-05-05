@@ -6,7 +6,7 @@ import {
   IAria2ServerInfo,
   IAria2ServersInfoItem,
   IAria2GlobalStat,
-} from "./adapter";
+} from './adapter';
 
 export function valueFromBoolean(val: boolean): string {
   return val.toString();
@@ -22,13 +22,13 @@ export function valueFromnumber(val: number): string {
 
 export function valueToBoolean(val: string): boolean {
   if (/^(false|true)$/.test(val)) {
-    if (val == "true") {
+    if (val == 'true') {
       return true;
     } else {
       return false;
     }
   } else {
-    throw "Unknown Boolean Value: " + val;
+    throw 'Unknown Boolean Value: ' + val;
   }
 }
 
@@ -44,16 +44,16 @@ export function fromTAria2ClientInputOption(v: TAria2ClientInputOption): any {
   let o = {};
   for (const k in v) {
     if (v[k] != undefined) {
-      if (typeof v[k] == "string") {
+      if (typeof v[k] == 'string') {
         o[k] = v[k];
-      } else if (typeof v[k] == "boolean") {
+      } else if (typeof v[k] == 'boolean') {
         o[k] = valueFromBoolean(v[k]);
-      } else if (typeof v[k] == "number") {
+      } else if (typeof v[k] == 'number') {
         o[k] = valueFromnumber(v[k]);
-      } else if (typeof v[k] == "bigint") {
+      } else if (typeof v[k] == 'bigint') {
         o[k] = valueFrombigint(v[k]);
       } else {
-        throw "Unknown Value: " + v[k];
+        throw 'Unknown Value: ' + v[k];
       }
     }
   }
@@ -64,16 +64,16 @@ export function intoTAria2ClientInputOption(v: any): TAria2ClientInputOption {
   let o = {};
   for (const k in v) {
     if (v[k] != undefined) {
-      if (typeof v[k] == "string") {
+      if (typeof v[k] == 'string') {
         o[k] = v[k];
-      } else if (typeof v[k] == "boolean") {
+      } else if (typeof v[k] == 'boolean') {
         o[k] = valueToBoolean(v[k]);
-      } else if (typeof v[k] == "number") {
+      } else if (typeof v[k] == 'number') {
         o[k] = valueTonumber(v[k]);
-      } else if (typeof v[k] == "bigint") {
+      } else if (typeof v[k] == 'bigint') {
         o[k] = valueTobigint(v[k]);
       } else {
-        throw "Unknown Value: " + v[k];
+        throw 'Unknown Value: ' + v[k];
       }
     }
   }

@@ -1,4 +1,6 @@
-import * as uuid from "uuid";
+import * as uuid from 'uuid';
+import axios from 'axios';
+
 import {
   IAria2ClientOptions,
   IAria2WSClientOptions,
@@ -10,14 +12,14 @@ import {
   TAria2ClientMulticallResult,
   Aria2ClientBaseClass,
   IAria2NotificationEvent,
-} from "./adapter";
-import { WebSocketClient, btoa } from "./polyfill";
-import { isNode } from "./utils";
+} from './adapter';
+
+import { isNode } from './utils';
+import { WebSocketClient, btoa } from './polyfill';
 import {
   Aria2ClientSystemMethodsBaseClass,
   IAria2HttpClientOptions,
-} from "./adapter";
-import axios from "axios";
+} from './adapter';
 
 export namespace RpcWebSocket {
   /**
@@ -47,8 +49,8 @@ export namespace RpcWebSocket {
       this._options = Object.assign({}, options);
 
       this._conn = new WebSocketClient(
-        `${options.protocol ?? "ws"}://${options.host}:${options.port}${
-          options.path ?? "/jsonrpc"
+        `${options.protocol ?? 'ws'}://${options.host}:${options.port}${
+          options.path ?? '/jsonrpc'
         }`,
         (() => {
           if (isNode()) {
@@ -60,12 +62,12 @@ export namespace RpcWebSocket {
       );
 
       this._conn.onclose = () => {
-        this.emit("ws.close");
+        this.emit('ws.close');
         this._opened = false;
         this._open_cbs = [];
       };
       this._conn.onopen = () => {
-        this.emit("ws.open");
+        this.emit('ws.open');
         this._opened = true;
         while (this._open_cbs.length > 0) {
           let cb = this._open_cbs.pop();
@@ -74,26 +76,21 @@ export namespace RpcWebSocket {
           }
         }
       };
-      this._conn.onmessage = (data) => {
-        if (data?.type == "message" || isNode()) {
+      this._conn.onmessage = data => {
+        if (data?.type == 'message' || isNode()) {
           data = data.data;
         }
         try {
-          this.emit("ws.message", data);
-          let message:
-            | IJsonRPCResponse
-            | IJsonRPCResponse[]
-            | IJsonRPCRequest = JSON.parse(data.toString());
+          this.emit('ws.message', data);
+          let message: IJsonRPCResponse | IJsonRPCResponse[] | IJsonRPCRequest =
+            JSON.parse(data.toString());
           if (message instanceof Array) {
             let cb = this._cbs.get(message[0].id);
             if (cb != undefined) {
               cb(message);
             }
             this._cbs.delete(message[0].id);
-          } else if (
-            message.id != undefined &&
-            this._cbs.has(message?.id)
-          ) {
+          } else if (message.id != undefined && this._cbs.has(message?.id)) {
             let cb = this._cbs.get(message.id);
             if (cb != undefined) {
               cb(message);
@@ -101,45 +98,45 @@ export namespace RpcWebSocket {
             this._cbs.delete(message.id);
           } else if ((<IJsonRPCRequest>message).method != undefined) {
             switch ((<IJsonRPCRequest>message)?.method) {
-              case "aria2.onDownloadStart":
+              case 'aria2.onDownloadStart':
                 this.emit(
-                  "aria2.onDownloadStart",
-                  
+                  'aria2.onDownloadStart',
+
                   ...((<IJsonRPCRequest>message).params ?? [])
                 );
                 break;
-              case "aria2.onDownloadPause":
+              case 'aria2.onDownloadPause':
                 this.emit(
-                  "aria2.onDownloadPause",
-                  
+                  'aria2.onDownloadPause',
+
                   ...((<IJsonRPCRequest>message).params ?? [])
                 );
                 break;
-              case "aria2.onDownloadStop":
+              case 'aria2.onDownloadStop':
                 this.emit(
-                  "aria2.onDownloadStop",
-                  
+                  'aria2.onDownloadStop',
+
                   ...((<IJsonRPCRequest>message).params ?? [])
                 );
                 break;
-              case "aria2.onDownloadComplete":
+              case 'aria2.onDownloadComplete':
                 this.emit(
-                  "aria2.onDownloadComplete",
-                  
+                  'aria2.onDownloadComplete',
+
                   ...((<IJsonRPCRequest>message).params ?? [])
                 );
                 break;
-              case "aria2.onDownloadError":
+              case 'aria2.onDownloadError':
                 this.emit(
-                  "aria2.onDownloadError",
-                  
+                  'aria2.onDownloadError',
+
                   ...((<IJsonRPCRequest>message).params ?? [])
                 );
                 break;
-              case "aria2.onBtDownloadComplete":
+              case 'aria2.onBtDownloadComplete':
                 this.emit(
-                  "aria2.onBtDownloadComplete",
-                  
+                  'aria2.onBtDownloadComplete',
+
                   ...((<IJsonRPCRequest>message).params ?? [])
                 );
                 break;
@@ -178,7 +175,7 @@ export namespace RpcWebSocket {
      * @ignore  @internal
      * @param data Data to be sent
      */
-    protected _sendRaw (data: any) {
+    protected _sendRaw(data: any) {
       return new Promise<void>((r, j) => {
         try {
           this._conn.send(data);
@@ -194,13 +191,13 @@ export namespace RpcWebSocket {
         await this._waitOpened();
         let id = uuid.v4();
         let msg: IJsonRPCRequest = {
-          jsonrpc: "2.0",
+          jsonrpc: '2.0',
           id,
           method,
           params: [] as any[],
         };
         if (this._options?.auth?.secret != undefined) {
-          msg.params.push("token:" + this._options.auth.secret);
+          msg.params.push('token:' + this._options.auth.secret);
         }
 
         msg.params = [...msg.params, ...params];
@@ -221,7 +218,7 @@ export namespace RpcWebSocket {
       if (resp.error != undefined) {
         throw resp.error;
       } else {
-        return (resp.result as unknown) as R;
+        return resp.result as unknown as R;
       }
     }
 
@@ -246,58 +243,115 @@ export namespace RpcWebSocket {
       return;
     }
 
-    public on(event: "ws.open", listener: () => any): this
-    public on(event: "ws.close", listener: () => any): this
-    public on(event: "ws.message", listener: (data: any) => any): this
-    public on(event: "aria2.onDownloadStart", listener: (ev: IAria2NotificationEvent) => any): this
-    public on(event: "aria2.onDownloadPause", listener: (ev: IAria2NotificationEvent) => any): this
-    public on(event: "aria2.onDownloadStop", listener: (ev: IAria2NotificationEvent) => any): this
-    public on(event: "aria2.onDownloadComplete", listener: (ev: IAria2NotificationEvent) => any): this
-    public on(event: "aria2.onDownloadError", listener: (ev: IAria2NotificationEvent) => any): this
-    public on(event: "aria2.onBtDownloadComplete", listener: (ev: IAria2NotificationEvent) => any): this
+    public on(event: 'ws.open', listener: () => any): this;
+    public on(event: 'ws.close', listener: () => any): this;
+    public on(event: 'ws.message', listener: (data: any) => any): this;
+    public on(
+      event: 'aria2.onDownloadStart',
+      listener: (ev: IAria2NotificationEvent) => any
+    ): this;
+    public on(
+      event: 'aria2.onDownloadPause',
+      listener: (ev: IAria2NotificationEvent) => any
+    ): this;
+    public on(
+      event: 'aria2.onDownloadStop',
+      listener: (ev: IAria2NotificationEvent) => any
+    ): this;
+    public on(
+      event: 'aria2.onDownloadComplete',
+      listener: (ev: IAria2NotificationEvent) => any
+    ): this;
+    public on(
+      event: 'aria2.onDownloadError',
+      listener: (ev: IAria2NotificationEvent) => any
+    ): this;
+    public on(
+      event: 'aria2.onBtDownloadComplete',
+      listener: (ev: IAria2NotificationEvent) => any
+    ): this;
     public on(event: string, listener: (...args: any[]) => void): this {
-      super.on(event, listener)
-      return this
+      super.on(event, listener);
+      return this;
     }
 
-    public once(event: "ws.open", listener: () => any): this
-    public once(event: "ws.close", listener: () => any): this
-    public once(event: "ws.message", listener: (data: any) => any): this
-    public once(event: "aria2.onDownloadStart", listener: (ev: IAria2NotificationEvent) => any): this
-    public once(event: "aria2.onDownloadPause", listener: (ev: IAria2NotificationEvent) => any): this
-    public once(event: "aria2.onDownloadStop", listener: (ev: IAria2NotificationEvent) => any): this
-    public once(event: "aria2.onDownloadComplete", listener: (ev: IAria2NotificationEvent) => any): this
-    public once(event: "aria2.onDownloadError", listener: (ev: IAria2NotificationEvent) => any): this
-    public once(event: "aria2.onBtDownloadComplete", listener: (ev: IAria2NotificationEvent) => any): this
+    public once(event: 'ws.open', listener: () => any): this;
+    public once(event: 'ws.close', listener: () => any): this;
+    public once(event: 'ws.message', listener: (data: any) => any): this;
+    public once(
+      event: 'aria2.onDownloadStart',
+      listener: (ev: IAria2NotificationEvent) => any
+    ): this;
+    public once(
+      event: 'aria2.onDownloadPause',
+      listener: (ev: IAria2NotificationEvent) => any
+    ): this;
+    public once(
+      event: 'aria2.onDownloadStop',
+      listener: (ev: IAria2NotificationEvent) => any
+    ): this;
+    public once(
+      event: 'aria2.onDownloadComplete',
+      listener: (ev: IAria2NotificationEvent) => any
+    ): this;
+    public once(
+      event: 'aria2.onDownloadError',
+      listener: (ev: IAria2NotificationEvent) => any
+    ): this;
+    public once(
+      event: 'aria2.onBtDownloadComplete',
+      listener: (ev: IAria2NotificationEvent) => any
+    ): this;
     public once(event: string, listener: (...args: any[]) => void): this {
-      super.once(event, listener)
-      return this
+      super.once(event, listener);
+      return this;
     }
 
-    public addListener(event: "ws.open", listener: () => any): this
-    public addListener(event: "ws.close", listener: () => any): this
-    public addListener(event: "ws.message", listener: (data: any) => any): this
-    public addListener(event: "aria2.onDownloadStart", listener: (ev: IAria2NotificationEvent) => any): this
-    public addListener(event: "aria2.onDownloadPause", listener: (ev: IAria2NotificationEvent) => any): this
-    public addListener(event: "aria2.onDownloadStop", listener: (ev: IAria2NotificationEvent) => any): this
-    public addListener(event: "aria2.onDownloadComplete", listener: (ev: IAria2NotificationEvent) => any): this
-    public addListener(event: "aria2.onDownloadError", listener: (ev: IAria2NotificationEvent) => any): this
-    public addListener(event: "aria2.onBtDownloadComplete", listener: (ev: IAria2NotificationEvent) => any): this
-    public addListener(event: string, listener: (...args: any[]) => void): this {
-      super.on(event, listener)
-      return this
+    public addListener(event: 'ws.open', listener: () => any): this;
+    public addListener(event: 'ws.close', listener: () => any): this;
+    public addListener(event: 'ws.message', listener: (data: any) => any): this;
+    public addListener(
+      event: 'aria2.onDownloadStart',
+      listener: (ev: IAria2NotificationEvent) => any
+    ): this;
+    public addListener(
+      event: 'aria2.onDownloadPause',
+      listener: (ev: IAria2NotificationEvent) => any
+    ): this;
+    public addListener(
+      event: 'aria2.onDownloadStop',
+      listener: (ev: IAria2NotificationEvent) => any
+    ): this;
+    public addListener(
+      event: 'aria2.onDownloadComplete',
+      listener: (ev: IAria2NotificationEvent) => any
+    ): this;
+    public addListener(
+      event: 'aria2.onDownloadError',
+      listener: (ev: IAria2NotificationEvent) => any
+    ): this;
+    public addListener(
+      event: 'aria2.onBtDownloadComplete',
+      listener: (ev: IAria2NotificationEvent) => any
+    ): this;
+    public addListener(
+      event: string,
+      listener: (...args: any[]) => void
+    ): this {
+      super.on(event, listener);
+      return this;
     }
   }
 
   export class SystemMethods extends Aria2ClientSystemMethodsBaseClass<IAria2WSClientOptions> {
     async listMethods() {
       return (await this._client.rawCall(
-        "system.listMethods"
+        'system.listMethods'
       )) as TAria2ClientMethodList;
     }
     async listNotifications() {
       return (await this._client.rawCall(
-        "system.listNotifications"
+        'system.listNotifications'
       )) as TAria2ClientNotificationList;
     }
     multicall<T>(...items: IAria2ClientMulticallItem[]) {
@@ -307,13 +361,13 @@ export namespace RpcWebSocket {
         let sec: string[] = [];
         let options = await this._client.getCreateOptions();
         if (options?.auth?.secret != undefined) {
-          sec.push((("token:" + options?.auth?.secret) as unknown) as string);
+          sec.push(('token:' + options?.auth?.secret) as unknown as string);
         }
         let s: IJsonRPCRequest[] = [];
         for (const i of items) {
           if (first != true) {
             s.push({
-              jsonrpc: "2.0",
+              jsonrpc: '2.0',
               id: firstid,
               method: i.methodName,
               params: [...sec, ...i.params],
@@ -321,7 +375,7 @@ export namespace RpcWebSocket {
             first = true;
           } else {
             s.push({
-              jsonrpc: "2.0",
+              jsonrpc: '2.0',
               id: uuid.v4(),
               method: i.methodName,
               params: [...sec, ...i.params],
@@ -330,20 +384,17 @@ export namespace RpcWebSocket {
         }
 
         await (this._client as any)._waitOpened();
-        (this._client as any)._cbs.set(
-          firstid,
-          (data: IJsonRPCResponse[]) => {
-            let out: Promise<T>[] = [];
-            for (const d of data) {
-              if (d.error != undefined) {
-                out.push(Promise.reject(d.error));
-              } else {
-                out.push(Promise.resolve((d.result as unknown) as T));
-              }
+        (this._client as any)._cbs.set(firstid, (data: IJsonRPCResponse[]) => {
+          let out: Promise<T>[] = [];
+          for (const d of data) {
+            if (d.error != undefined) {
+              out.push(Promise.reject(d.error));
+            } else {
+              out.push(Promise.resolve(d.result as unknown as T));
             }
-            rr(out);
           }
-        );
+          rr(out);
+        });
         this._client.rawSend(JSON.stringify(s)).catch(j);
       });
     }
@@ -367,7 +418,7 @@ export namespace RpcHttp {
       this._options = options;
       this._system = new SystemMethods(this);
     }
- 
+
     public get system(): Aria2ClientSystemMethodsBaseClass<IAria2HttpClientOptions> {
       return this._system;
     }
@@ -375,26 +426,26 @@ export namespace RpcHttp {
       let id = uuid.v4();
       let arg = [...args];
       if (this._options?.auth?.secret != undefined) {
-        arg.push((("token:" + this._options.auth.secret) as unknown) as T);
+        arg.push(('token:' + this._options.auth.secret) as unknown as T);
       }
-      let url = `${this._options.protocol ?? "http"}://${this._options.host}:${
+      let url = `${this._options.protocol ?? 'http'}://${this._options.host}:${
         this._options.port
       }/jsonrpc?method=${decodeURIComponent(methods)}&id=${decodeURIComponent(
         id
       )}&params=${btoa(JSON.stringify(arg))}`;
       let rsp = await axios(url, {
-        method: "GET",
+        method: 'GET',
         ...this._options.fetchOptions,
       });
       let j: IJsonRPCResponse = rsp.data;
       if (j.error == undefined) {
-        return (j.result as unknown) as R;
+        return j.result as unknown as R;
       } else {
         throw j.error;
       }
     }
     public async rawSend<T>(data: T): Promise<void> {
-      throw new Error("Method not implemented.");
+      throw new Error('Method not implemented.');
     }
     public async getCreateOptions(): Promise<
       Readonly<IAria2ClientOptions & IAria2HttpClientOptions>
@@ -415,7 +466,7 @@ export namespace RpcHttp {
         let a: string[] = [];
         if (op?.auth?.secret != undefined) a.push(op?.auth?.secret);
         args.push({
-          jsonrpc: "2.0",
+          jsonrpc: '2.0',
           id,
           params: [...a, ...i.params],
           method: i.methodName,
@@ -427,11 +478,11 @@ export namespace RpcHttp {
         );
       }
       new Promise(async () => {
-        let url = `${op.protocol ?? "http"}://${op.host}:${
+        let url = `${op.protocol ?? 'http'}://${op.host}:${
           op.port
         }/jsonrpc?method=&id=&params=${btoa(JSON.stringify(args))}`;
         let rep = await axios(url, {
-          method: "GET",
+          method: 'GET',
           ...op.fetchOptions,
         });
         for (const r of rep.data as IJsonRPCResponse[]) {
@@ -448,12 +499,12 @@ export namespace RpcHttp {
     }
     public async listMethods(): Promise<TAria2ClientMethodList> {
       return await this._client.rawCall<void, TAria2ClientMethodList>(
-        "system.listMethods"
+        'system.listMethods'
       );
     }
     public async listNotifications(): Promise<TAria2ClientNotificationList> {
       return await this._client.rawCall<void, TAria2ClientNotificationList>(
-        "system.listNotifications"
+        'system.listNotifications'
       );
     }
   }

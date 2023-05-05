@@ -1,10 +1,11 @@
-# [libaria2.ts](https://www.npmjs.com/package/libaria2-ts)
+# [libaria2.ts](https://www.npmjs.com/package/libaria2)
 
-![npm bundle size](https://img.shields.io/bundlephobia/min/libaria2-ts?label=size&style=for-the-badge)
-![GitHub repo file count](https://img.shields.io/github/directory-file-count/im-oxygen/libaria2-ts?style=for-the-badge)
-![npm](https://img.shields.io/npm/dm/libaria2-ts?style=for-the-badge)
-![GitHub Repo stars](https://img.shields.io/github/stars/im-oxygen/libaria2-ts?style=for-the-badge)
+![npm bundle size](https://img.shields.io/bundlephobia/min/libaria2?label=size&style=for-the-badge)
+![GitHub repo file count](https://img.shields.io/github/directory-file-count/yjl9903/libaria2?style=for-the-badge)
+![npm](https://img.shields.io/npm/dm/libaria2?style=for-the-badge)
+![GitHub Repo stars](https://img.shields.io/github/stars/yjl9903/libaria2?style=for-the-badge)
 
+> This is a fork of [hydrati/libaria2-ts](https://github.com/hydrati/libaria2-ts).
 
 TypeScript (Node.js & Browser) library for [aria2](https://aria2.github.io/).
 
@@ -18,10 +19,11 @@ TypeScript (Node.js & Browser) library for [aria2](https://aria2.github.io/).
   - [License](#license)
 
 ## Introduction
+
 libaria2.ts uses [Aria2 JSON-RPC Interface](https://aria2.github.io/manual/en/html/aria2c.html#rpc-interface) to control it.
 
 ## Features
-- Node.js and browsers support
+
 - Multiple Transports
   - [HTTP](https://aria2.github.io/manual/en/html/aria2c.html#rpc-interface)
   - [WebSocket](https://aria2.github.io/manual/en/html/aria2c.html#json-rpc-over-websocket)
@@ -31,24 +33,21 @@ libaria2.ts uses [Aria2 JSON-RPC Interface](https://aria2.github.io/manual/en/ht
 ## Getting Started
 
 Install this package
-```
-npm install --save libaria2-ts
-```
-or
-```
-yarn add libaria2-ts
-```
 
+```bash
+npm install libaria2
+```
 
 Start aria2 with rpc, example
-```
+
+```bash
 aria2c --enable-rpc --rpc-listen-all=true --rpc-allow-origin-all
 ```
-~~or use TypeScript API~~ (deprecated)
 
 ## Usage
 
 ### Create client
+
 ```ts
 import { WebSocket as Aria2WebSocket } from "libaria2-ts";
 // or 
@@ -61,6 +60,7 @@ const aria2 = new Aria2WebSocket({...});
 ```
 
 Example options
+
 ```ts
 {
   host: 'localhost',
@@ -73,6 +73,7 @@ Example options
 ```
 
 ### Methods
+
 ```ts
 let ver = await aria2.getVersion();
 /*
@@ -99,35 +100,13 @@ aria2.onceDownloadStart().then((event: IAria2NotificationEvent) => {
   console.log(`Download ${event.gid} Started`);
 }));
 
-
-
 await aria2.closeConnection();
-
 ```
 
-More methods, see [Aria2ClientBaseClient](https://hyroge.github.io/libaria2-ts/classes/adapter.aria2clientbaseclass.html)
+More methods, see [Aria2ClientBaseClient](https://hydrati.github.io/libaria2-ts/classes/adapter.aria2clientbaseclass.html)
 
 ## License
-```
-MIT License
 
-Copyright (c) 2021 Oxygen
+MIT License © 2021 [Oxygen](https://github.com/hydrati)
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
+MIT License © 2023 [XLor](https://github.com/yjl9903)

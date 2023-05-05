@@ -1,5 +1,8 @@
-import type WebSocket from "ws";
-import { EventEmitter } from "events";
+import type WebSocket from 'ws';
+import type { AxiosRequestConfig } from 'axios';
+
+import { EventEmitter } from 'events';
+
 import {
   intoIAria2DownloadStatus,
   intoIAria2FileStatus,
@@ -8,10 +11,8 @@ import {
   fromTAria2ClientInputOption,
   intoTAria2ClientInputOption,
   intoIAria2GlobalStat,
-} from "./parser";
-import { AxiosRequestConfig } from "axios";
-import { isNode } from "./utils";
-import { publicEncrypt } from "crypto";
+} from './parser';
+import { isNode } from './utils';
 
 export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
   /**
@@ -20,7 +21,6 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
    */
   constructor() {
     super();
-
   }
   /**
    * ## Aria2 SystemMethods
@@ -44,14 +44,14 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
     position?: number
   ): Promise<TAria2ClientGID[]> {
     if (isNode()) {
-      if (metalink instanceof Buffer) metalink = metalink.toString("base64");
+      if (metalink instanceof Buffer) metalink = metalink.toString('base64');
     }
     let args: unknown[] = [metalink];
     if (options != undefined) args.push(options);
     if (options != undefined && position != undefined) args.push(position);
-    else if (position != undefined) throw "Require `options`!";
+    else if (position != undefined) throw 'Require `options`!';
     return await this.rawCall<unknown, TAria2ClientGID[]>(
-      "aria2.addMetalink",
+      'aria2.addMetalink',
       ...args
     );
   }
@@ -68,7 +68,7 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
    */
   public async remove(gid: TAria2ClientGID): Promise<TAria2ClientGID> {
     return await this.rawCall<TAria2ClientGID, TAria2ClientGID>(
-      "aria2.remove",
+      'aria2.remove',
       gid
     );
   }
@@ -78,7 +78,7 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
    */
   public async forceRemove(gid: TAria2ClientGID): Promise<TAria2ClientGID> {
     return await this.rawCall<TAria2ClientGID, TAria2ClientGID>(
-      "aria2.forceRemove",
+      'aria2.forceRemove',
       gid
     );
   }
@@ -88,7 +88,7 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
    */
   public async pause(gid: TAria2ClientGID): Promise<TAria2ClientGID> {
     return await this.rawCall<TAria2ClientGID, TAria2ClientGID>(
-      "aria2.pause",
+      'aria2.pause',
       gid
     );
   }
@@ -98,7 +98,7 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
    */
   public async forcePause(gid: TAria2ClientGID): Promise<TAria2ClientGID> {
     return await this.rawCall<TAria2ClientGID, TAria2ClientGID>(
-      "aria2.forcePause",
+      'aria2.forcePause',
       gid
     );
   }
@@ -108,7 +108,7 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
    * @returns TAria2PauseAllResult
    */
   public async pauseAll(): Promise<TAria2PauseAllResult> {
-    return await this.rawCall<void, TAria2PauseAllResult>("aria2.pauseAll");
+    return await this.rawCall<void, TAria2PauseAllResult>('aria2.pauseAll');
   }
 
   /**
@@ -117,7 +117,7 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
    */
   public async forcePauseAll(): Promise<TAria2PauseAllResult> {
     return await this.rawCall<void, TAria2PauseAllResult>(
-      "aria2.forcePauseAll"
+      'aria2.forcePauseAll'
     );
   }
   /**
@@ -126,7 +126,7 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
    */
   public async unpause(gid: TAria2ClientGID): Promise<TAria2ClientGID> {
     return await this.rawCall<TAria2ClientGID, TAria2ClientGID>(
-      "aria2.unpause",
+      'aria2.unpause',
       gid
     );
   }
@@ -135,7 +135,7 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
    * @returns TAria2PauseAllResult
    */
   public async unpauseAll(): Promise<TAria2PauseAllResult> {
-    return await this.rawCall<void, TAria2PauseAllResult>("aria2.unpauseAll");
+    return await this.rawCall<void, TAria2PauseAllResult>('aria2.unpauseAll');
   }
   /**
    * This method returns the progress of the download denoted by gid (string). keys is an array of strings. If specified, the response contains only keys in the keys array. If keys is empty or omitted, the response contains all keys. This is useful when you just want specific keys and avoid unnecessary transfers. For example, `aria2.tellStatus("2089b05ecca3d829", ["gid", "status"])` returns the gid and status keys only. The response is a struct and contains following keys. Values are strings.
@@ -153,13 +153,13 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
   ): Promise<Pick<IAria2DownloadStatus, T> | IAria2DownloadStatus> {
     if (keys != undefined) {
       let resp = await this.rawCall<unknown, unknown>(
-        "aria2.tellStatus",
+        'aria2.tellStatus',
         gid,
         keys
       );
       return intoIAria2DownloadStatus(resp) as Pick<IAria2DownloadStatus, T>;
     } else {
-      let resp = await this.rawCall<unknown, unknown>("aria2.tellStatus", gid);
+      let resp = await this.rawCall<unknown, unknown>('aria2.tellStatus', gid);
 
       return intoIAria2DownloadStatus(resp) as IAria2DownloadStatus;
     }
@@ -170,7 +170,7 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
    */
   public async getUris(gid: TAria2ClientGID): Promise<IAria2UriStatus[]> {
     return await this.rawCall<TAria2ClientGID, IAria2UriStatus[]>(
-      "aria2.getUris",
+      'aria2.getUris',
       gid
     );
   }
@@ -180,7 +180,7 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
    */
   public async getFiles(gid: TAria2ClientGID): Promise<IAria2FileStatus[]> {
     return await this.rawCall<TAria2ClientGID, IAria2FileStatus[]>(
-      "aria2.getFiles",
+      'aria2.getFiles',
       gid
     );
   }
@@ -190,7 +190,7 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
    */
   public async getPeers(gid: TAria2ClientGID): Promise<IAria2PeersInfo[]> {
     let resp = await this.rawCall<TAria2ClientGID, unknown[]>(
-      "aria2.getPeers",
+      'aria2.getPeers',
       gid
     );
     return resp.map(intoIAria2PeersInfo) as IAria2PeersInfo[];
@@ -201,7 +201,7 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
    */
   public async getServers(gid: TAria2ClientGID): Promise<TAria2ServersInfo> {
     let resp = await this.rawCall<TAria2ClientGID, unknown[]>(
-      "aria2.getServers",
+      'aria2.getServers',
       gid
     );
 
@@ -220,7 +220,7 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
   ): Promise<IAria2DownloadStatus[] | Pick<IAria2DownloadStatus, T>[]> {
     if (keys != undefined) {
       let resp = await this.rawCall<unknown, unknown[]>(
-        "aria2.tellActive",
+        'aria2.tellActive',
         keys
       );
 
@@ -229,7 +229,7 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
         T
       >[];
     } else {
-      let resp = await this.rawCall<unknown, unknown[]>("aria2.tellActive");
+      let resp = await this.rawCall<unknown, unknown[]>('aria2.tellActive');
 
       return resp.map(intoIAria2DownloadStatus) as IAria2DownloadStatus[];
     }
@@ -264,7 +264,7 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
   ): Promise<Pick<IAria2DownloadStatus, T>[] | IAria2DownloadStatus[]> {
     if (keys != undefined) {
       let resp = await this.rawCall<unknown, unknown[]>(
-        "aria2.tellWaiting",
+        'aria2.tellWaiting',
         offset,
         num,
         keys
@@ -276,7 +276,7 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
       >[];
     } else {
       let resp = await this.rawCall<unknown, unknown[]>(
-        "aria2.tellWaiting",
+        'aria2.tellWaiting',
         offset,
         num
       );
@@ -309,7 +309,7 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
   ): Promise<Pick<IAria2DownloadStatus, T>[] | IAria2DownloadStatus[]> {
     if (keys != undefined) {
       let resp = await this.rawCall<unknown, unknown[]>(
-        "aria2.tellStopped",
+        'aria2.tellStopped',
         offset,
         num,
         keys
@@ -321,7 +321,7 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
       >[];
     } else {
       let resp = await this.rawCall<unknown, unknown[]>(
-        "aria2.tellStopped",
+        'aria2.tellStopped',
         offset,
         num
       );
@@ -347,7 +347,7 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
     how: EAria2ChangePositionHow
   ): Promise<TAria2ChangePositionResult> {
     return (await this.rawCall<unknown, unknown>(
-      "aria2.changePosition",
+      'aria2.changePosition',
       gid,
       pos,
       how
@@ -367,7 +367,7 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
     position?: number
   ): Promise<TAria2ChangeUriResult> {
     return (await this.rawCall<unknown, unknown>(
-      "aria2.changeUri",
+      'aria2.changeUri',
       gid,
       fileIndex,
       delUris,
@@ -385,7 +385,7 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
     gid: TAria2ClientGID
   ): Promise<TAria2ClientInputOption> {
     let resp = await this.rawCall<TAria2ClientGID, unknown>(
-      "aria2.getOption",
+      'aria2.getOption',
       gid
     );
 
@@ -427,7 +427,7 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
     options: TAria2ClientInputOption
   ): Promise<TAria2ChangeOptionResult> {
     return (await this.rawCall<unknown, unknown>(
-      "aria2.changeOption",
+      'aria2.changeOption',
       gid,
       fromTAria2ClientInputOption(options)
     )) as TAria2ChangeOptionResult;
@@ -437,7 +437,7 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
    * @returns TAria2ClientInputOption
    */
   public async getGlobalOption(): Promise<TAria2ClientInputOption> {
-    let resp = await this.rawCall<void, unknown>("aria2.getGlobalOption");
+    let resp = await this.rawCall<void, unknown>('aria2.getGlobalOption');
     return intoTAria2ClientInputOption(resp);
   }
 
@@ -468,7 +468,7 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
     options: TAria2ClientInputOption
   ): Promise<TAria2ChangeOptionResult> {
     return (await this.rawCall(
-      "aria2.changeGlobalOption",
+      'aria2.changeGlobalOption',
       fromTAria2ClientInputOption(options)
     )) as TAria2ChangeOptionResult;
   }
@@ -477,7 +477,7 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
    * @returns IAria2GlobalStat
    */
   public async getGlobalStat(): Promise<IAria2GlobalStat> {
-    let resp = await this.rawCall<void, unknown>("aria2.getGlobalStat");
+    let resp = await this.rawCall<void, unknown>('aria2.getGlobalStat');
     return intoIAria2GlobalStat(resp);
   }
   /**
@@ -486,7 +486,7 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
    */
   public async purgeDownloadResult(): Promise<TAria2PurgeDownloadResult> {
     return (await this.rawCall<void, unknown>(
-      "aria2.purgeDownloadResult"
+      'aria2.purgeDownloadResult'
     )) as TAria2PurgeDownloadResult;
   }
   /**
@@ -505,7 +505,7 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
     gid: TAria2ClientGID
   ): Promise<TAria2RemoveDownloadResult> {
     return (await this.rawCall<TAria2ClientGID, unknown>(
-      "aria2.removeDownloadResult",
+      'aria2.removeDownloadResult',
       gid
     )) as TAria2RemoveDownloadResult;
   }
@@ -520,7 +520,7 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
    * @returns IAria2Version
    */
   public async getVersion(): Promise<IAria2Version> {
-    return (await this.rawCall("aria2.getVersion")) as IAria2Version;
+    return (await this.rawCall('aria2.getVersion')) as IAria2Version;
   }
 
   /**
@@ -533,7 +533,7 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
    * @returns TAria2ShutdownResult
    */
   public async shutdown(): Promise<TAria2ShutdownResult> {
-    return (await this.rawCall("aria2.shutdown")) as TAria2ShutdownResult;
+    return (await this.rawCall('aria2.shutdown')) as TAria2ShutdownResult;
   }
 
   /**
@@ -545,7 +545,7 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
    * @returns TAria2ShutdownResult
    */
   public async forceShutdown(): Promise<TAria2ShutdownResult> {
-    return (await this.rawCall("aria2.forceShutdown")) as TAria2ShutdownResult;
+    return (await this.rawCall('aria2.forceShutdown')) as TAria2ShutdownResult;
   }
 
   /**
@@ -557,7 +557,7 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
    * @returns TAria2SaveSessionResult
    */
   public async saveSession(): Promise<TAria2SaveSessionResult> {
-    return (await this.rawCall("aria2.saveSession")) as TAria2SaveSessionResult;
+    return (await this.rawCall('aria2.saveSession')) as TAria2SaveSessionResult;
   }
 
   /**
@@ -570,7 +570,7 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
    */
   public async getSessionInfo(): Promise<IAria2ClientSessionInfo> {
     return (await this.rawCall(
-      "aria2.getSessioninfo"
+      'aria2.getSessioninfo'
     )) as IAria2ClientSessionInfo;
   }
 
@@ -588,12 +588,12 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
     options?: TAria2ClientInputOption,
     position?: number
   ): Promise<TAria2ClientGID> {
-    if (typeof uris == "string") uris = [uris];
+    if (typeof uris == 'string') uris = [uris];
     let args: unknown[] = [uris];
     if (options != undefined) args.push(fromTAria2ClientInputOption(options));
     if (options != undefined && position != undefined) args.push(position);
-    else if (position != undefined) throw "Require `options`!";
-    return (await this.rawCall("aria2.addUri", ...args)) as TAria2ClientGID;
+    else if (position != undefined) throw 'Require `options`!';
+    return (await this.rawCall('aria2.addUri', ...args)) as TAria2ClientGID;
   }
 
   /**
@@ -612,14 +612,14 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
     options?: IAria2ClientOptions,
     position?: number
   ): Promise<TAria2ClientGID> {
-    if (torrent instanceof Buffer) torrent = torrent.toString("base64");
+    if (torrent instanceof Buffer) torrent = torrent.toString('base64');
 
-    if (typeof uris == "string") uris = [uris];
+    if (typeof uris == 'string') uris = [uris];
     let args: unknown[] = [torrent, uris];
     if (options != undefined) args.push(options);
     if (options != undefined && position != undefined) args.push(position);
-    else if (position != undefined) throw "Require `options`!";
-    return (await this.rawCall("aria2.addTorrent", ...args)) as TAria2ClientGID;
+    else if (position != undefined) throw 'Require `options`!';
+    return (await this.rawCall('aria2.addTorrent', ...args)) as TAria2ClientGID;
   }
   /**
    * **[Unsafe]**  Call any method with any params.
@@ -646,43 +646,95 @@ export abstract class Aria2ClientBaseClass<T> extends EventEmitter {
     Readonly<IAria2ClientOptions & T>
   >;
 
-
-  public addListener(event: "aria2.onDownloadStart", listener: (ev: IAria2NotificationEvent) => any): this
-  public addListener(event: "aria2.onDownloadPause", listener: (ev: IAria2NotificationEvent) => any): this
-  public addListener(event: "aria2.onDownloadStop", listener: (ev: IAria2NotificationEvent) => any): this
-  public addListener(event: "aria2.onDownloadComplete", listener: (ev: IAria2NotificationEvent) => any): this
-  public addListener(event: "aria2.onDownloadError", listener: (ev: IAria2NotificationEvent) => any): this
-  public addListener(event: "aria2.onBtDownloadComplete", listener: (ev: IAria2NotificationEvent) => any): this
-  public addListener(event: string, listener: (...args: any[]) => any): this
+  public addListener(
+    event: 'aria2.onDownloadStart',
+    listener: (ev: IAria2NotificationEvent) => any
+  ): this;
+  public addListener(
+    event: 'aria2.onDownloadPause',
+    listener: (ev: IAria2NotificationEvent) => any
+  ): this;
+  public addListener(
+    event: 'aria2.onDownloadStop',
+    listener: (ev: IAria2NotificationEvent) => any
+  ): this;
+  public addListener(
+    event: 'aria2.onDownloadComplete',
+    listener: (ev: IAria2NotificationEvent) => any
+  ): this;
+  public addListener(
+    event: 'aria2.onDownloadError',
+    listener: (ev: IAria2NotificationEvent) => any
+  ): this;
+  public addListener(
+    event: 'aria2.onBtDownloadComplete',
+    listener: (ev: IAria2NotificationEvent) => any
+  ): this;
+  public addListener(event: string, listener: (...args: any[]) => any): this;
   public addListener(event: string, listener: (...args: any[]) => any): this {
-    super.on(event, listener)
-    return this
+    super.on(event, listener);
+    return this;
   }
-  
-  public on(event: "aria2.onDownloadStart", listener: (ev: IAria2NotificationEvent) => any): this
-  public on(event: "aria2.onDownloadPause", listener: (ev: IAria2NotificationEvent) => any): this
-  public on(event: "aria2.onDownloadStop", listener: (ev: IAria2NotificationEvent) => any): this
-  public on(event: "aria2.onDownloadComplete", listener: (ev: IAria2NotificationEvent) => any): this
-  public on(event: "aria2.onDownloadError", listener: (ev: IAria2NotificationEvent) => any): this
-  public on(event: "aria2.onBtDownloadComplete", listener: (ev: IAria2NotificationEvent) => any): this
-  public on(event: string, listener: (...args: any[]) => any): this
+
+  public on(
+    event: 'aria2.onDownloadStart',
+    listener: (ev: IAria2NotificationEvent) => any
+  ): this;
+  public on(
+    event: 'aria2.onDownloadPause',
+    listener: (ev: IAria2NotificationEvent) => any
+  ): this;
+  public on(
+    event: 'aria2.onDownloadStop',
+    listener: (ev: IAria2NotificationEvent) => any
+  ): this;
+  public on(
+    event: 'aria2.onDownloadComplete',
+    listener: (ev: IAria2NotificationEvent) => any
+  ): this;
+  public on(
+    event: 'aria2.onDownloadError',
+    listener: (ev: IAria2NotificationEvent) => any
+  ): this;
+  public on(
+    event: 'aria2.onBtDownloadComplete',
+    listener: (ev: IAria2NotificationEvent) => any
+  ): this;
+  public on(event: string, listener: (...args: any[]) => any): this;
   public on(event: string, listener: (...args: any[]) => any): this {
-    super.on(event, listener)
-    return this
+    super.on(event, listener);
+    return this;
   }
 
-  public once(event: "aria2.onDownloadStart", listener: (ev: IAria2NotificationEvent) => any): this
-  public once(event: "aria2.onDownloadPause", listener: (ev: IAria2NotificationEvent) => any): this
-  public once(event: "aria2.onDownloadStop", listener: (ev: IAria2NotificationEvent) => any): this
-  public once(event: "aria2.onDownloadComplete", listener: (ev: IAria2NotificationEvent) => any): this
-  public once(event: "aria2.onDownloadError", listener: (ev: IAria2NotificationEvent) => any): this
-  public once(event: "aria2.onBtDownloadComplete", listener: (ev: IAria2NotificationEvent) => any): this
-  public once(event: string, listener: (...args: any[]) => any): this
+  public once(
+    event: 'aria2.onDownloadStart',
+    listener: (ev: IAria2NotificationEvent) => any
+  ): this;
+  public once(
+    event: 'aria2.onDownloadPause',
+    listener: (ev: IAria2NotificationEvent) => any
+  ): this;
+  public once(
+    event: 'aria2.onDownloadStop',
+    listener: (ev: IAria2NotificationEvent) => any
+  ): this;
+  public once(
+    event: 'aria2.onDownloadComplete',
+    listener: (ev: IAria2NotificationEvent) => any
+  ): this;
+  public once(
+    event: 'aria2.onDownloadError',
+    listener: (ev: IAria2NotificationEvent) => any
+  ): this;
+  public once(
+    event: 'aria2.onBtDownloadComplete',
+    listener: (ev: IAria2NotificationEvent) => any
+  ): this;
+  public once(event: string, listener: (...args: any[]) => any): this;
   public once(event: string, listener: (...args: any[]) => any): this {
-    super.once(event, listener)
-    return this
+    super.once(event, listener);
+    return this;
   }
-
 }
 
 export type TAria2RemoveDownloadResult = string;
@@ -717,9 +769,9 @@ export type TAria2ChangePositionResult = number;
 export type TAria2ChangeUriResult = number[];
 
 export enum EAria2ChangePositionHow {
-  Set = "POS_SET",
-  Cur = "POS_CUR",
-  End = "POS_END",
+  Set = 'POS_SET',
+  Cur = 'POS_CUR',
+  End = 'POS_END',
 }
 
 export interface IAria2ServerInfo {
@@ -741,12 +793,12 @@ export interface IAria2ServersInfoItem {
 export type TAria2ServersInfo = IAria2ServersInfoItem[];
 
 export enum EAria2DownloadState {
-  Active = "active",
-  Waiting = "waiting",
-  Paused = "paused",
-  Error = "error",
-  Complete = "complete",
-  Removed = "removed",
+  Active = 'active',
+  Waiting = 'waiting',
+  Paused = 'paused',
+  Error = 'error',
+  Complete = 'complete',
+  Removed = 'removed',
 }
 
 export interface IAria2PeersInfo {
@@ -852,9 +904,9 @@ export interface IAria2FileStatus {
 
 export enum EAria2UriStatusEnum {
   /** The URI is in use. */
-  Waiting = "waiting",
+  Waiting = 'waiting',
   /** The URI is still waiting in the queue. */
-  Used = "used",
+  Used = 'used',
 }
 
 export interface IAria2UriStatus {
@@ -866,20 +918,20 @@ export interface IAria2UriStatus {
 
 export enum EAria2DownloadBitTorrentMode {
   /** Single File */
-  Single = "single",
+  Single = 'single',
   /** Multi File */
-  Multi = "multi",
+  Multi = 'multi',
 }
 
 export interface IJsonRPCRequest {
-  jsonrpc: "2.0" | "1.0";
+  jsonrpc: '2.0' | '1.0';
   id?: string | number;
   method: string;
   params: any[];
 }
 
 export interface IJsonRPCResponse {
-  jsonrpc: "2.0" | "1.0";
+  jsonrpc: '2.0' | '1.0';
   id?: string | number;
   result?: object;
   error?: object;
@@ -972,12 +1024,12 @@ export interface IAria2ClientSessionInfo {
 }
 
 export interface IAria2WSClientOptions {
-  protocol?: "ws" | "wss";
+  protocol?: 'ws' | 'wss';
   wsOptions?: WebSocket.ClientOptions;
 }
 
 export interface IAria2HttpClientOptions {
-  protocol?: "http" | "https";
+  protocol?: 'http' | 'https';
   fetchOptions?: Readonly<AxiosRequestConfig>;
 }
 
@@ -1017,169 +1069,169 @@ export interface IAria2SpawnOptions {
 
 // The Method Names
 export type TAria2MethodNames =
-  | "aria2.addUri"
-  | "aria2.addTorrent"
-  | "aria2.getPeers"
-  | "aria2.addMetalink"
-  | "aria2.remove"
-  | "aria2.pause"
-  | "aria2.forcePause"
-  | "aria2.pauseAll"
-  | "aria2.forcePauseAll"
-  | "aria2.unpause"
-  | "aria2.unpauseAll"
-  | "aria2.forceRemove"
-  | "aria2.changePosition"
-  | "aria2.tellStatus"
-  | "aria2.getUris"
-  | "aria2.getFiles"
-  | "aria2.getServers"
-  | "aria2.tellActive"
-  | "aria2.tellWaiting"
-  | "aria2.tellStopped"
-  | "aria2.getOption"
-  | "aria2.changeUri"
-  | "aria2.changeOption"
-  | "aria2.getGlobalOption"
-  | "aria2.changeGlobalOption"
-  | "aria2.purgeDownloadResult"
-  | "aria2.removeDownloadResult"
-  | "aria2.getVersion"
-  | "aria2.getSessionInfo"
-  | "aria2.shutdown"
-  | "aria2.forceShutdown"
-  | "aria2.getGlobalStat"
-  | "aria2.saveSession"
-  | "system.multicall"
-  | "system.listMethods"
-  | "system.listNotifications";
+  | 'aria2.addUri'
+  | 'aria2.addTorrent'
+  | 'aria2.getPeers'
+  | 'aria2.addMetalink'
+  | 'aria2.remove'
+  | 'aria2.pause'
+  | 'aria2.forcePause'
+  | 'aria2.pauseAll'
+  | 'aria2.forcePauseAll'
+  | 'aria2.unpause'
+  | 'aria2.unpauseAll'
+  | 'aria2.forceRemove'
+  | 'aria2.changePosition'
+  | 'aria2.tellStatus'
+  | 'aria2.getUris'
+  | 'aria2.getFiles'
+  | 'aria2.getServers'
+  | 'aria2.tellActive'
+  | 'aria2.tellWaiting'
+  | 'aria2.tellStopped'
+  | 'aria2.getOption'
+  | 'aria2.changeUri'
+  | 'aria2.changeOption'
+  | 'aria2.getGlobalOption'
+  | 'aria2.changeGlobalOption'
+  | 'aria2.purgeDownloadResult'
+  | 'aria2.removeDownloadResult'
+  | 'aria2.getVersion'
+  | 'aria2.getSessionInfo'
+  | 'aria2.shutdown'
+  | 'aria2.forceShutdown'
+  | 'aria2.getGlobalStat'
+  | 'aria2.saveSession'
+  | 'system.multicall'
+  | 'system.listMethods'
+  | 'system.listNotifications';
 
 // Input Option Item Names
 export type TAria2ClientInputOptionNames =
-  | "all-proxy"
-  | "all-proxy-passwd"
-  | "all-proxy-user"
-  | "allow-overwrite"
-  | "allow-piece-length-change"
-  | "always-resume"
-  | "async-dns"
-  | "auto-file-renaming"
-  | "bt-enable-hook-after-hash-check"
-  | "bt-enable-lpd"
-  | "bt-exclude-tracker"
-  | "bt-external-ip"
-  | "bt-force-encryption"
-  | "bt-hash-check-seed"
-  | "bt-load-saved-metadata"
-  | "bt-max-peers"
-  | "bt-metadata-only"
-  | "bt-min-crypto-level"
-  | "bt-prioritize-piece"
-  | "bt-remove-unselected-file"
-  | "bt-request-peer-speed-limit"
-  | "bt-require-crypto"
-  | "bt-save-metadata"
-  | "bt-seed-unverified"
-  | "bt-stop-timeout"
-  | "bt-tracker"
-  | "bt-tracker-connect-timeout"
-  | "bt-tracker-interval"
-  | "bt-tracker-timeout"
-  | "check-integrity"
-  | "checksum"
-  | "conditional-get"
-  | "connect-timeout"
-  | "content-disposition-default-utf8"
-  | "continue"
-  | "dir"
-  | "dry-run"
-  | "enable-http-keep-alive"
-  | "enable-http-pipelining"
-  | "enable-mmap"
-  | "enable-peer-exchange"
-  | "file-allocation"
-  | "follow-metalink"
-  | "follow-torrent"
-  | "force-save"
-  | "ftp-passwd"
-  | "ftp-pasv"
-  | "ftp-proxy"
-  | "ftp-proxy-passwd"
-  | "ftp-proxy-user"
-  | "ftp-reuse-connection"
-  | "ftp-type"
-  | "ftp-user"
-  | "gid"
-  | "hash-check-only"
-  | "header"
-  | "http-accept-gzip"
-  | "http-auth-challenge"
-  | "http-no-cache"
-  | "http-passwd"
-  | "http-proxy"
-  | "http-proxy-passwd"
-  | "http-proxy-user"
-  | "http-user"
-  | "https-proxy"
-  | "https-proxy-passwd"
-  | "https-proxy-user"
-  | "index-out"
-  | "lowest-speed-limit"
-  | "max-connection-per-server"
-  | "max-download-limit"
-  | "max-file-not-found"
-  | "max-mmap-limit"
-  | "max-resume-failure-tries"
-  | "max-tries"
-  | "max-upload-limit"
-  | "metalink-base-uri"
-  | "metalink-enable-unique-protocol"
-  | "metalink-language"
-  | "metalink-location"
-  | "metalink-os"
-  | "metalink-preferred-protocol"
-  | "metalink-version"
-  | "min-split-size"
-  | "no-file-allocation-limit"
-  | "no-netrc"
-  | "no-proxy"
-  | "out"
-  | "parameterized-uri"
-  | "pause"
-  | "pause-metadata"
-  | "piece-length"
-  | "proxy-method"
-  | "realtime-chunk-checksum"
-  | "referer"
-  | "remote-time"
-  | "remove-control-file"
-  | "retry-wait"
-  | "reuse-uri"
-  | "rpc-save-upload-metadata"
-  | "seed-ratio"
-  | "seed-time"
-  | "select-file"
-  | "split"
-  | "ssh-host-key-md"
-  | "stream-piece-selector"
-  | "timeout"
-  | "uri-selector"
-  | "use-head"
-  | "user-agent"
+  | 'all-proxy'
+  | 'all-proxy-passwd'
+  | 'all-proxy-user'
+  | 'allow-overwrite'
+  | 'allow-piece-length-change'
+  | 'always-resume'
+  | 'async-dns'
+  | 'auto-file-renaming'
+  | 'bt-enable-hook-after-hash-check'
+  | 'bt-enable-lpd'
+  | 'bt-exclude-tracker'
+  | 'bt-external-ip'
+  | 'bt-force-encryption'
+  | 'bt-hash-check-seed'
+  | 'bt-load-saved-metadata'
+  | 'bt-max-peers'
+  | 'bt-metadata-only'
+  | 'bt-min-crypto-level'
+  | 'bt-prioritize-piece'
+  | 'bt-remove-unselected-file'
+  | 'bt-request-peer-speed-limit'
+  | 'bt-require-crypto'
+  | 'bt-save-metadata'
+  | 'bt-seed-unverified'
+  | 'bt-stop-timeout'
+  | 'bt-tracker'
+  | 'bt-tracker-connect-timeout'
+  | 'bt-tracker-interval'
+  | 'bt-tracker-timeout'
+  | 'check-integrity'
+  | 'checksum'
+  | 'conditional-get'
+  | 'connect-timeout'
+  | 'content-disposition-default-utf8'
+  | 'continue'
+  | 'dir'
+  | 'dry-run'
+  | 'enable-http-keep-alive'
+  | 'enable-http-pipelining'
+  | 'enable-mmap'
+  | 'enable-peer-exchange'
+  | 'file-allocation'
+  | 'follow-metalink'
+  | 'follow-torrent'
+  | 'force-save'
+  | 'ftp-passwd'
+  | 'ftp-pasv'
+  | 'ftp-proxy'
+  | 'ftp-proxy-passwd'
+  | 'ftp-proxy-user'
+  | 'ftp-reuse-connection'
+  | 'ftp-type'
+  | 'ftp-user'
+  | 'gid'
+  | 'hash-check-only'
+  | 'header'
+  | 'http-accept-gzip'
+  | 'http-auth-challenge'
+  | 'http-no-cache'
+  | 'http-passwd'
+  | 'http-proxy'
+  | 'http-proxy-passwd'
+  | 'http-proxy-user'
+  | 'http-user'
+  | 'https-proxy'
+  | 'https-proxy-passwd'
+  | 'https-proxy-user'
+  | 'index-out'
+  | 'lowest-speed-limit'
+  | 'max-connection-per-server'
+  | 'max-download-limit'
+  | 'max-file-not-found'
+  | 'max-mmap-limit'
+  | 'max-resume-failure-tries'
+  | 'max-tries'
+  | 'max-upload-limit'
+  | 'metalink-base-uri'
+  | 'metalink-enable-unique-protocol'
+  | 'metalink-language'
+  | 'metalink-location'
+  | 'metalink-os'
+  | 'metalink-preferred-protocol'
+  | 'metalink-version'
+  | 'min-split-size'
+  | 'no-file-allocation-limit'
+  | 'no-netrc'
+  | 'no-proxy'
+  | 'out'
+  | 'parameterized-uri'
+  | 'pause'
+  | 'pause-metadata'
+  | 'piece-length'
+  | 'proxy-method'
+  | 'realtime-chunk-checksum'
+  | 'referer'
+  | 'remote-time'
+  | 'remove-control-file'
+  | 'retry-wait'
+  | 'reuse-uri'
+  | 'rpc-save-upload-metadata'
+  | 'seed-ratio'
+  | 'seed-time'
+  | 'select-file'
+  | 'split'
+  | 'ssh-host-key-md'
+  | 'stream-piece-selector'
+  | 'timeout'
+  | 'uri-selector'
+  | 'use-head'
+  | 'user-agent'
   /* Global Only */
-  | "bt-max-open-files"
-  | "download-result"
-  | "keep-unfinished-download-result"
-  | "log"
-  | "log-level"
-  | "max-concurrent-downloads"
-  | "max-download-result"
-  | "max-overall-download-limit"
-  | "max-overall-upload-limit"
-  | "optimize-concurrent-downloads"
-  | "save-cookies"
-  | "save-session"
-  | "server-stat-of";
+  | 'bt-max-open-files'
+  | 'download-result'
+  | 'keep-unfinished-download-result'
+  | 'log'
+  | 'log-level'
+  | 'max-concurrent-downloads'
+  | 'max-download-result'
+  | 'max-overall-download-limit'
+  | 'max-overall-upload-limit'
+  | 'optimize-concurrent-downloads'
+  | 'save-cookies'
+  | 'save-session'
+  | 'server-stat-of';
 
 /**
  * The Input Option
@@ -1196,9 +1248,9 @@ export type TAria2ClientInputOption = {
 export type TAria2ClientGID = string;
 
 export type TAria2ClientNotificationNames =
-  | "aria2.onDownloadStart"
-  | "aria2.onDownloadPause"
-  | "aria2.onDownloadStop"
-  | "aria2.onDownloadComplete"
-  | "aria2.onDownloadError"
-  | "aria2.onBtDownloadComplete";
+  | 'aria2.onDownloadStart'
+  | 'aria2.onDownloadPause'
+  | 'aria2.onDownloadStop'
+  | 'aria2.onDownloadComplete'
+  | 'aria2.onDownloadError'
+  | 'aria2.onBtDownloadComplete';

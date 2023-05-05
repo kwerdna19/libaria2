@@ -1,4 +1,4 @@
-import { Base64, isNode } from "./utils";
+import { Base64, isNode } from './utils';
 
 export const WebSocketClient = (() => {
   if (globalThis.WebSocket != undefined) {
@@ -8,7 +8,7 @@ export const WebSocketClient = (() => {
       }
     };
   } else {
-    return require("ws") as typeof WebSocket;
+    return require('ws') as typeof WebSocket;
   }
 })();
 
@@ -18,7 +18,7 @@ export const btoa: (s: string) => string = (() => {
   } else if (globalThis.btoa != undefined) {
     return globalThis.btoa;
   } else {
-    throw new Error("`btoa()` is not defined!");
+    throw new Error('`btoa()` is not defined!');
   }
 })();
 
@@ -28,6 +28,6 @@ export const atob: (s: string) => string = (() => {
   } else if (globalThis.atob != undefined) {
     return globalThis.atob;
   } else {
-    throw new Error("`atob()` is not defined!");
+    throw new Error('`atob()` is not defined!');
   }
 })();

@@ -6,3 +6,4 @@ types
 *.log
 cache
 temp
+dist
