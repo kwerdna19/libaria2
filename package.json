@@ -1,6 +1,6 @@
 {
   "name": "libaria2",
-  "version": "1.0.91",
+  "version": "1.0.92",
   "description": "A full-typing wrapper around aria2`, `The next generation download utility`.",
   "keywords": [
     "aria2",
@@ -32,7 +32,8 @@
     "build:dts": "api-extractor run",
     "lint": "eslint -c ./.eslintrc",
     "release": "bumpp --commit --push --tag && pnpm publish",
-    "test": "ts-node ./tests/index.ts"
+    "test": "ts-node ./tests/index.ts",
+    "preversion": "pnpm build"
   },
   "dependencies": {
     "axios": "^1.4.0",
