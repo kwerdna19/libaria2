@@ -1,6 +1,8 @@
 import * as uuid from 'uuid';
 import axios from 'axios';
 
+import WebSocket from 'isomorphic-ws';
+
 import {
   IAria2ClientOptions,
   IAria2WSClientOptions,
@@ -14,8 +16,8 @@ import {
   IAria2NotificationEvent,
 } from './adapter';
 
+import { btoa } from './polyfill';
 import { isNode } from './utils';
-import { WebSocketClient, btoa } from './polyfill';
 import {
   Aria2ClientSystemMethodsBaseClass,
   IAria2HttpClientOptions,
@@ -48,7 +50,7 @@ export namespace RpcWebSocket {
       super();
       this._options = Object.assign({}, options);
 
-      this._conn = new WebSocketClient(
+      this._conn = new WebSocket(
         `${options.protocol ?? 'ws'}://${options.host}:${options.port}${
           options.path ?? '/jsonrpc'
         }`,
@@ -76,10 +78,9 @@ export namespace RpcWebSocket {
           }
         }
       };
-      this._conn.onmessage = data => {
-        if (data?.type == 'message' || isNode()) {
-          data = data.data;
-        }
+      this._conn.onmessage = event => {
+        // Fix type issue
+        const data = event?.type == 'message' || isNode() ? event.data : event;
         try {
           this.emit('ws.message', data);
           let message: IJsonRPCResponse | IJsonRPCResponse[] | IJsonRPCRequest =

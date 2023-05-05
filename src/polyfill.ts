@@ -1,18 +1,4 @@
-import ws from 'ws';
-
 import { Base64, isNode } from './utils';
-
-export const WebSocketClient = (() => {
-  if (globalThis.WebSocket != undefined) {
-    return class extends globalThis.WebSocket {
-      constructor(addr) {
-        super(addr);
-      }
-    };
-  } else {
-    return ws;
-  }
-})();
 
 export const btoa: (s: string) => string = (() => {
   if (isNode()) {
