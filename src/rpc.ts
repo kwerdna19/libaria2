@@ -1,7 +1,8 @@
-import * as uuid from 'uuid';
+import { v4 } from 'uuid';
 import axios from 'axios';
 
 import WebSocket from 'isomorphic-ws';
+import { webcrypto } from 'crypto';
 
 import {
   IAria2ClientOptions,
@@ -22,6 +23,11 @@ import {
   Aria2ClientSystemMethodsBaseClass,
   IAria2HttpClientOptions,
 } from './adapter';
+
+const rnds8 = new Uint8Array(16);
+const uuid = () => {
+  return v4({ rng: () => webcrypto.getRandomValues(rnds8) });
+};
 
 export namespace RpcWebSocket {
   /**
@@ -190,7 +196,7 @@ export namespace RpcWebSocket {
     protected _sendJson(method: string, ...params: any[]) {
       return new Promise<IJsonRPCResponse>(async (r, j) => {
         await this._waitOpened();
-        let id = uuid.v4();
+        let id = uuid();
         let msg: IJsonRPCRequest = {
           jsonrpc: '2.0',
           id,
@@ -357,7 +363,7 @@ export namespace RpcWebSocket {
     }
     multicall<T>(...items: IAria2ClientMulticallItem[]) {
       return new Promise<TAria2ClientMulticallResult<T>>(async (rr, j) => {
-        let firstid = uuid.v4();
+        let firstid = uuid();
         let first = false;
         let sec: string[] = [];
         let options = await this._client.getCreateOptions();
@@ -377,7 +383,7 @@ export namespace RpcWebSocket {
           } else {
             s.push({
               jsonrpc: '2.0',
-              id: uuid.v4(),
+              id: uuid(),
               method: i.methodName,
               params: [...sec, ...i.params],
             });
@@ -424,7 +430,7 @@ export namespace RpcHttp {
       return this._system;
     }
     public async rawCall<T, R>(methods: string, ...args: T[]): Promise<R> {
-      let id = uuid.v4();
+      let id = uuid();
       let arg = [...args];
       if (this._options?.auth?.secret != undefined) {
         arg.push(('token:' + this._options.auth.secret) as unknown as T);
@@ -463,7 +469,7 @@ export namespace RpcHttp {
       let prs: TAria2ClientMulticallResult<T1> = [];
       let op = await this._client.getCreateOptions();
       for (const i of items) {
-        let id = uuid.v4();
+        let id = uuid();
         let a: string[] = [];
         if (op?.auth?.secret != undefined) a.push(op?.auth?.secret);
         args.push({
