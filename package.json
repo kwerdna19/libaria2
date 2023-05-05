@@ -1,6 +1,6 @@
 {
   "name": "libaria2",
-  "version": "1.0.92",
+  "version": "1.0.93",
   "description": "A full-typing wrapper around aria2`, `The next generation download utility`.",
   "keywords": [
     "aria2",
