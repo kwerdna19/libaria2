@@ -1,4 +1,4 @@
-# [libaria2.ts](https://www.npmjs.com/package/libaria2)
+# [libaria2](https://www.npmjs.com/package/libaria2)
 
 ![npm bundle size](https://img.shields.io/bundlephobia/min/libaria2?label=size&style=for-the-badge)
 ![GitHub repo file count](https://img.shields.io/github/directory-file-count/yjl9903/libaria2?style=for-the-badge)
@@ -7,20 +7,11 @@
 
 > This is a fork of [hydrati/libaria2-ts](https://github.com/hydrati/libaria2-ts).
 
-TypeScript (Node.js & Browser) library for [aria2](https://aria2.github.io/).
-
-- [libaria2.ts](#libaria2ts)
-  - [Introduction](#introduction)
-  - [Features](#features)
-  - [Getting Started](#getting-started)
-  - [Usage](#usage)
-    - [Create client](#create-client)
-    - [Methods](#methods)
-  - [License](#license)
+Node.js TypeScript library for [aria2](https://aria2.github.io/).
 
 ## Introduction
 
-libaria2.ts uses [Aria2 JSON-RPC Interface](https://aria2.github.io/manual/en/html/aria2c.html#rpc-interface) to control it.
+libaria2 uses [Aria2 JSON-RPC Interface](https://aria2.github.io/manual/en/html/aria2c.html#rpc-interface) to control it.
 
 ## Features
 
@@ -50,13 +41,20 @@ aria2c --enable-rpc --rpc-listen-all=true --rpc-allow-origin-all
 
 ```ts
 import { WebSocket as Aria2WebSocket } from "libaria2-ts";
-// or 
-//     import { Http as Aria2Http } from "libaria2-ts";
 
-const aria2 = new Aria2WebSocket({...});
-// or
-//     const aria2 = new Aria2Http({...});
+const aria2 = new Aria2WebSocket({
+  host: 'localhost',
+  port: 6800
+});
+```
 
+```ts
+import { Http as Aria2Http } from "libaria2-ts";
+
+const aria2 = new Aria2Http({
+  host: 'localhost',
+  port: 6800
+});
 ```
 
 Example options
@@ -75,7 +73,7 @@ Example options
 ### Methods
 
 ```ts
-let ver = await aria2.getVersion();
+const version = await aria2.getVersion();
 /*
  * Output:
  * { version: '...', enabledFeatues: [...] }
@@ -98,7 +96,7 @@ aria2.on('aria2.onDownloadStart', (event: IAria2NotificationEvent) => {
 // or:
 aria2.onceDownloadStart().then((event: IAria2NotificationEvent) => {
   console.log(`Download ${event.gid} Started`);
-}));
+});
 
 await aria2.closeConnection();
 ```

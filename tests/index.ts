@@ -1,4 +1,4 @@
-import { WebSocket as Aria2WebSocket } from "../src/lib";
+import { WebSocket as Aria2WebSocket } from "../src/index";
 
 (async () => {
   const client1 = new Aria2WebSocket.Client({
