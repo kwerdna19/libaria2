@@ -433,7 +433,7 @@ export namespace RpcHttp {
       let id = uuid();
       let arg = [...args];
       if (this._options?.auth?.secret != undefined) {
-        arg.push(('token:' + this._options.auth.secret) as unknown as T);
+        arg.unshift(('token:' + this._options.auth.secret) as unknown as T);
       }
       let url = `${this._options.protocol ?? 'http'}://${this._options.host}:${
         this._options.port
